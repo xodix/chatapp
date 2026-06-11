@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/alexedwards/argon2id"
+	"go.mongodb.org/mongo-driver/v2/bson"
 	"go.mongodb.org/mongo-driver/v2/mongo"
 
 	"github.com/labstack/echo/v5"
@@ -48,15 +49,13 @@ func Register(c *echo.Context) error {
 		return c.String(http.StatusBadRequest, err.Error())
 	}
 
-	// users, err := gorm.G[models.User](db).Where("email = ?", registerData.Email).Find(c.Request().Context())
-	var user models.User
 	response := userCollection.FindOne(c.Request().Context(), map[string]interface{}{"email": registerData.Email})
 	if response.Err() != nil {
-		return c.String(http.StatusInternalServerError, response.Err().Error())
-	}
-	err := response.Decode(&user)
-	if err != nil {
-		return c.String(http.StatusInternalServerError, err.Error())
+		if response.Err() != mongo.ErrNoDocuments {
+			return c.String(http.StatusInternalServerError, response.Err().Error())
+		}
+	} else {
+		return c.String(http.StatusBadRequest, "User already exists")
 	}
 
 	password, err := argon2id.CreateHash(registerData.Password, argon2id.DefaultParams)
@@ -77,14 +76,14 @@ func Register(c *echo.Context) error {
 		return c.String(http.StatusInternalServerError, err.Error())
 	}
 
-	token, err := auth.GenerateJWT(result.InsertedID.(string))
+	token, err := auth.GenerateJWT(result.InsertedID.(bson.ObjectID).Hex())
 	if err != nil {
 		return c.String(http.StatusInternalServerError, err.Error())
 	}
 
 	return c.JSON(http.StatusOK, RegisterResponse{
 		JWTToken: *token,
-		UserID:   result.InsertedID.(string),
+		UserID:   result.InsertedID.(bson.ObjectID).Hex(),
 	})
 }
 
@@ -109,6 +108,9 @@ func Login(c *echo.Context) error {
 	var user models.User
 	response := userCollection.FindOne(c.Request().Context(), map[string]interface{}{"email": loginData.Email})
 	if response.Err() != nil {
+		if response.Err() == mongo.ErrNoDocuments {
+			return c.String(http.StatusBadRequest, "User not found")
+		}
 		return c.String(http.StatusInternalServerError, response.Err().Error())
 	}
 	err := response.Decode(&user)
@@ -124,11 +126,11 @@ func Login(c *echo.Context) error {
 		return c.String(http.StatusUnauthorized, "Invalid password")
 	}
 
-	token, err := auth.GenerateJWT(*user.ID)
+	token, err := auth.GenerateJWT(user.ID.Hex())
 
 	return c.JSON(http.StatusOK, LoginResponse{
 		JWTToken: *token,
-		UserID:   *user.ID,
+		UserID:   user.ID.Hex(),
 	})
 }
 
@@ -141,21 +143,28 @@ type DetailsResponse struct {
 }
 
 func Details(c *echo.Context) error {
-	userID := c.Get("userID").(uint)
+	userID := c.Get("userID").(string)
+	userIDObj, err := bson.ObjectIDFromHex(userID)
+	if err != nil {
+		return c.String(http.StatusInternalServerError, err.Error())
+	}
 
 	// users, err := gorm.G[models.User](db).Where("id = ?", userID).Find(c.Request().Context())
 	var user models.User
-	result := userCollection.FindOne(c.Request().Context(), map[string]interface{}{"_id": userID})
+	result := userCollection.FindOne(c.Request().Context(), map[string]interface{}{"_id": userIDObj})
 	if result.Err() != nil {
+		if result.Err() == mongo.ErrNoDocuments {
+			return c.String(http.StatusNotFound, "User not found")
+		}
 		return c.String(http.StatusInternalServerError, result.Err().Error())
 	}
-	err := result.Decode(&user)
+	err = result.Decode(&user)
 	if err != nil {
 		return c.String(http.StatusInternalServerError, err.Error())
 	}
 
 	return c.JSON(http.StatusOK, DetailsResponse{
-		ID:        *user.ID,
+		ID:        user.ID.String(),
 		Email:     user.Email,
 		Name:      user.Name,
 		Surname:   user.Surname,
@@ -164,10 +173,14 @@ func Details(c *echo.Context) error {
 }
 
 func DeleteAccount(c *echo.Context) error {
-	userID := c.Get("userID").(uint)
+	userID := c.Get("userID").(string)
+	userIDObj, err := bson.ObjectIDFromHex(userID)
+	if err != nil {
+		return c.String(http.StatusInternalServerError, err.Error())
+	}
 
 	// tx := db.Delete(&models.User{}, userID)
-	result, err := userCollection.DeleteOne(c.Request().Context(), map[string]interface{}{"_id": userID})
+	result, err := userCollection.DeleteOne(c.Request().Context(), map[string]interface{}{"_id": userIDObj})
 	if result.DeletedCount != 1 {
 		return c.String(http.StatusNotFound, "Could not delete the user")
 	}

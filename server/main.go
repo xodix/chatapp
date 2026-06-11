@@ -23,7 +23,7 @@ func (cv *CustomValidator) Validate(i interface{}) error {
 }
 
 func main() {
-	if _, exists := os.LookupEnv("PRODUCTION"); exists {
+	if _, exists := os.LookupEnv("PRODUCTION"); !exists {
 		godotenv.Load()
 	}
 	db := configDB()

@@ -1,14 +1,28 @@
-FROM node:26.3-alpine AS build
+# Build stage
+FROM node:22-alpine AS builder
+
 WORKDIR /app
+
+# Enable pnpm
+RUN corepack enable
+
+# Copy dependency files first for better caching
+COPY package.json pnpm-lock.yaml ./
+
+# Install dependencies
+RUN pnpm install --frozen-lockfile
+
+# Copy source
 COPY . .
-RUN npm install
-RUN npm run build
 
-FROM nginx:1.31
+# Build the Vite app
+RUN pnpm build
 
-WORKDIR /usr/local/apache2
-COPY --from=build /app/dist /usr/share/nginx/html
-COPY nginx.conf /etc/nginx/
+# Production stage
+FROM nginx:alpine
+
+COPY --from=builder /app/dist /usr/share/nginx/html
 
 EXPOSE 80
-ENTRYPOINT ["nginx", "-g", "daemon off;"]
+
+CMD ["nginx", "-g", "daemon off;"]

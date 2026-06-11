@@ -21,7 +21,7 @@ function ChatBubble({ text, fromUser }: { text: string, fromUser: boolean }) {
 function Chat() {
 	// const _id = new URLSearchParams(document.location.search);
 	const [currMessage, setCurrMessage] = useState("");
-	const messages = [
+	const [messages, setMessages] = useState([
 		{ text: "Hello", fromUser: true },
 		{ text: "Mellow my friend", fromUser: false },
 		{ text: "Fuck you", fromUser: true },
@@ -35,7 +35,7 @@ function Chat() {
 		{ text: "Fuck you", fromUser: true },
 		{ text: "Fuck you", fromUser: true },
 		{ text: "Fuck you", fromUser: true },
-	];
+	]);
 
 	return (
 		<div className="min-h-screen">
@@ -45,12 +45,13 @@ function Chat() {
 			<div className="h-10"></div>
 			<form className="absolute bottom-0 w-full flex" onSubmit={(e) => {
 				e.preventDefault();
+				setMessages([...messages, { text: currMessage, fromUser: true }]);
 				setCurrMessage("");
 			}}>
 				<input className="h-10 form-input w-5/6" value={currMessage} onChange={(e) => setCurrMessage(e.target.value)} />
 				<input className="h-10 form-input w-1/6" type="submit" value="Send" />
 			</form>
-		</div>
+		</div >
 	);
 }
 
