@@ -21,18 +21,27 @@ function ChatBubble({ text, fromUser }: { text: string, fromUser: boolean }) {
 function Chat() {
 	// const _id = new URLSearchParams(document.location.search);
 	const [currMessage, setCurrMessage] = useState("");
+	const messages = [
+		{ text: "Hello", fromUser: true },
+		{ text: "Mellow my friend", fromUser: false },
+		{ text: "Fuck you", fromUser: true },
+		{ text: "Fuck you", fromUser: true },
+		{ text: "Fuck you", fromUser: true },
+		{ text: "Fuck you", fromUser: true },
+		{ text: "Fuck you", fromUser: true },
+		{ text: "Fuck you", fromUser: true },
+		{ text: "Fuck you", fromUser: true },
+		{ text: "Fuck you", fromUser: true },
+		{ text: "Fuck you", fromUser: true },
+		{ text: "Fuck you", fromUser: true },
+		{ text: "Fuck you", fromUser: true },
+	];
 
 	return (
 		<div className="min-h-screen">
-			<ChatBubble text="Hello" fromUser={true} />
-			<ChatBubble text="Mellow my friend" fromUser={false} />
-			<ChatBubble text="Fuck you" fromUser={true} />
-			<ChatBubble text="Fuck you" fromUser={true} />
-			<ChatBubble text="Fuck you" fromUser={true} />
-			<ChatBubble text="Fuck you" fromUser={true} />
-			<ChatBubble text="Fuck you" fromUser={true} />
-			<ChatBubble text="Fuck you" fromUser={true} />
-			<ChatBubble text="Fuck you" fromUser={true} />
+			{messages.map((msg, index) => (
+				<ChatBubble key={index} text={msg.text} fromUser={msg.fromUser} />
+			))}
 			<div className="h-10"></div>
 			<form className="absolute bottom-0 w-full flex" onSubmit={(e) => {
 				e.preventDefault();
