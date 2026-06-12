@@ -38,14 +38,14 @@ func main() {
 
 	// ROUTES
 	routes.RouteUsers("/user", e, db)
+	routes.RouteChats("/chats", e, db)
 
 	e.GET("/", func(c *echo.Context) error {
 		return c.String(http.StatusOK, "Hello, World!")
 	})
 
+	log.Println("Server is running on http://localhost:8080")
 	if err := e.Start(":8080"); err != nil {
 		e.Logger.Error("failed to start server", "error", err)
 	}
-
-	log.Println("Server is running on port :8080 with HTTP and gRPC support")
 }

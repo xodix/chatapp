@@ -143,6 +143,109 @@ paths:
                 type: string
               example: "Malformed token"
 
+    put:
+      summary: Modify user data
+      operationId: UpdateUser
+      tags:
+        - User
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateRequest"
+      responses:
+        "200":
+          description: User deleted successfully
+          content:
+            text/plain:
+              schema:
+                type: string
+              example: "User deleted successfully"
+        "404":
+          description: No user with id that is inside the token
+          content:
+            text/plain:
+              schema:
+                type: string
+              examples:
+                user_not_found:
+                  summary: User does not exist
+                  value: "User not found"
+        "401":
+          description: Invalid token
+          content:
+            text/plain:
+              schema:
+                type: string
+              example: "Malformed token"
+
+  /chats/:
+    get:
+      summary: Get the users chats
+      operationId: chatsGet
+      tags:
+        - Chats
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: User data
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GetChatsResponse"
+        "404":
+          description: No user with id that is inside the token
+          content:
+            text/plain:
+              schema:
+                type: string
+              examples:
+                user_not_found:
+                  summary: User does not exist
+                  value: "User not found"
+        "401":
+          description: Invalid token
+          content:
+            text/plain:
+              schema:
+                type: string
+              example: "Malformed token"
+    post:
+      summary: Add a chat
+      operationId: chatsAd
+      tags:
+        - Chats
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: User data
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GetChatsResponse"
+        "404":
+          description: No user with id that is inside the token
+          content:
+            text/plain:
+              schema:
+                type: string
+              examples:
+                user_not_found:
+                  summary: User does not exist
+                  value: "User not found"
+        "401":
+          description: Invalid token
+          content:
+            text/plain:
+              schema:
+                type: string
+              example: "Malformed token"
+
 components:
   securitySchemes:
     bearerAuth:
@@ -258,3 +361,63 @@ components:
           type: string
           format: date-time
           description: Users birthdate as a timestamp
+
+    UpdateRequest:
+      type: object
+      properties:
+        email:
+          type: string
+          description: Users email
+          example: john2.doe@example.com
+        name:
+          type: string
+          description: Users first name
+          example: John
+        surname:
+          type: string
+          description: Users last name
+          example: Doe
+        birthdate:
+          type: string
+          format: date-time
+          description: Users birthdate as a timestamp
+
+    ChatMessage:
+      properties:
+        id:
+          type: string
+          description: Unique ID of the message
+          example: "afcabefbbafacaebf243"
+        author:
+          type: string
+          description: Unique ID of the user that sent the message
+          example: "afcabefbbafacaebf243"
+        message:
+          type: string
+          description: The message content
+          example: "Hello, how are you?"
+
+    Chat:
+      properties:
+        id:
+          type: string
+          description: Unique ID of the chat
+          example: "afcabefbbafacaebf243"
+        messages:
+          type: array
+          items:
+            $ref: "#/components/schemas/ChatMessage"
+        members:
+          type: array
+          items:
+            type: string
+            description: Unique ID of the user that is a member of the chat
+            example: "afcabefbbafacaebf243"
+
+    GetChatsResponse:
+      type: object
+      properties:
+        chats:
+          type: array
+          items:
+            $ref: "#/components/schemas/Chat"

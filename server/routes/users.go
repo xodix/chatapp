@@ -19,13 +19,14 @@ func RouteUsers(prefix string, e *echo.Echo, db *mongo.Database) {
 	userCollection = db.Collection("users")
 
 	userRouter := e.Group(prefix)
-	userRouter.POST("/register", Register)
-	userRouter.POST("/login", Login)
+	userRouter.POST("/register", register)
+	userRouter.POST("/login", login)
 
 	protected := userRouter.Group("")
 	protected.Use(auth.JWTMiddleware)
-	protected.GET("/", Details)
-	protected.DELETE("/", DeleteAccount)
+	protected.GET("/", details)
+	protected.DELETE("/", deleteAccount)
+	protected.PUT("/", updateAccount)
 }
 
 type RegisterRequest struct {
@@ -40,7 +41,7 @@ type RegisterResponse struct {
 	UserID   string `json:"user_id"`
 }
 
-func Register(c *echo.Context) error {
+func register(c *echo.Context) error {
 	registerData := new(RegisterRequest)
 	if err := c.Bind(registerData); err != nil {
 		return c.String(http.StatusBadRequest, err.Error())
@@ -96,7 +97,7 @@ type LoginResponse struct {
 	UserID   string `json:"user_id"`
 }
 
-func Login(c *echo.Context) error {
+func login(c *echo.Context) error {
 	loginData := new(LoginRequest)
 	if err := c.Bind(loginData); err != nil {
 		return c.String(http.StatusBadRequest, err.Error())
@@ -142,7 +143,7 @@ type DetailsResponse struct {
 	Birthdate time.Time `json:"birthdate"  validate:"required"`
 }
 
-func Details(c *echo.Context) error {
+func details(c *echo.Context) error {
 	userID := c.Get("userID").(string)
 	userIDObj, err := bson.ObjectIDFromHex(userID)
 	if err != nil {
@@ -172,14 +173,13 @@ func Details(c *echo.Context) error {
 	})
 }
 
-func DeleteAccount(c *echo.Context) error {
+func deleteAccount(c *echo.Context) error {
 	userID := c.Get("userID").(string)
 	userIDObj, err := bson.ObjectIDFromHex(userID)
 	if err != nil {
 		return c.String(http.StatusInternalServerError, err.Error())
 	}
 
-	// tx := db.Delete(&models.User{}, userID)
 	result, err := userCollection.DeleteOne(c.Request().Context(), map[string]interface{}{"_id": userIDObj})
 	if result.DeletedCount != 1 {
 		return c.String(http.StatusNotFound, "Could not delete the user")
@@ -189,4 +189,41 @@ func DeleteAccount(c *echo.Context) error {
 	}
 
 	return c.String(http.StatusOK, "Account deleted")
+}
+
+type UpdateRequest struct {
+	Email     string    `json:"email"  validate:"required,email"`
+	Name      string    `json:"name"  validate:"required,min=3,max=60"`
+	Surname   string    `json:"surname"  validate:"required,min=3,max=60"`
+	Birthdate time.Time `json:"birthdate"  validate:"required"`
+}
+
+func updateAccount(c *echo.Context) error {
+	userID := c.Get("userID").(string)
+	userIDObj, err := bson.ObjectIDFromHex(userID)
+	if err != nil {
+		return c.String(http.StatusInternalServerError, err.Error())
+	}
+	var request UpdateRequest
+	err = c.Bind(&request)
+	if err != nil {
+		return c.String(http.StatusBadRequest, err.Error())
+	}
+
+	updateResult, err := userCollection.UpdateOne(c.Request().Context(), map[string]interface{}{"_id": userIDObj}, map[string]interface{}{
+		"$set": map[string]interface{}{
+			"email":   request.Email,
+			"name":    request.Name,
+			"surname": request.Surname,
+			"date":    request.Birthdate,
+		},
+	})
+	if err != nil {
+		return c.String(http.StatusInternalServerError, err.Error())
+	}
+	if updateResult.ModifiedCount != 1 {
+		return c.String(http.StatusBadRequest, "Could not modify the user")
+	}
+
+	return c.String(http.StatusOK, "Updated account data")
 }
