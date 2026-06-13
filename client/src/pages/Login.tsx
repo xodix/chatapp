@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { NavLink } from 'react-router';
+import { Request } from '../conn/network';
 
 function Login() {
 	const [email, setEmail] = useState('')
@@ -9,17 +10,11 @@ function Login() {
 	function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
 		e.preventDefault();
 
-		fetch('http://localhost:5000/login', {
-			method: 'POST',
-			headers: {
-				'Content-Type': 'application/json',
-			},
-			body: JSON.stringify({ email, password }),
-		})
+		Request.login({ email, password })
 			.then(res => {
-				if (res.ok) {
-					return res.json();
-				}
+				localStorage.setItem('token', res.token);
+				localStorage.setItem('userID', res.user_id.toString());
+				window.location.href = '/';
 			}).catch(err => {
 				setError(err.message);
 			});

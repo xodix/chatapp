@@ -6,15 +6,20 @@ import Login from './pages/Login.tsx'
 import Register from './pages/Register.tsx'
 import Chats from './pages/Chats.tsx'
 import Chat from './pages/Chat.tsx'
+import ProtectedRoute from './conn/protectedRoute.tsx'
+import CreateChat from './pages/CreateChat.tsx'
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <BrowserRouter>
       <Routes>
-        <Route path="/" element={<Chats />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
-        <Route path="/chat" element={<Chat />} />
+        <Route element={<ProtectedRoute />}>
+          <Route path="/createChat" element={<CreateChat />} />
+          <Route path="/chat" element={<Chat />} />
+          <Route path="/" element={<Chats />} />
+        </Route>
       </Routes>
     </BrowserRouter>
   </StrictMode>

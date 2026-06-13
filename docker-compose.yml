@@ -45,14 +45,14 @@ services:
     volumes:
       - ./server/docs/openAPI.yml:/foo/openapi.yaml:ro
 
-  client:
-    build:
-      context: ./client/
-      dockerfile: Dockerfile
-    container_name: client_chatapp
-    restart: unless-stopped
-    ports:
-      - "3000:80"
+  # client:
+  #   build:
+  #     context: ./client/
+  #     dockerfile: Dockerfile
+  #   container_name: client_chatapp
+  #   restart: unless-stopped
+  #   ports:
+  #     - "3000:80"
 
 volumes:
   mongo_data:
