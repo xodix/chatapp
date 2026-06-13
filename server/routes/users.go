@@ -27,6 +27,7 @@ func RouteUsers(prefix string, e *echo.Echo, db *mongo.Database) {
 	protected.GET("/", details)
 	protected.DELETE("/", deleteAccount)
 	protected.PUT("/", updateAccount)
+	protected.GET("/all", getAllUsers)
 }
 
 type RegisterRequest struct {
@@ -226,4 +227,37 @@ func updateAccount(c *echo.Context) error {
 	}
 
 	return c.String(http.StatusOK, "Updated account data")
+}
+
+type GetAllUsersUser struct {
+	ID      bson.ObjectID `json:"id" bson:"_id,omitempty"`
+	Name    string        `json:"name" bson:"name"`
+	Surname string        `json:"surname" bson:"surname"`
+}
+
+type GetAllUsersResponse struct {
+	Users []GetAllUsersUser `json:"users"`
+}
+
+func getAllUsers(c *echo.Context) error {
+	result, err := userCollection.Find(c.Request().Context(), map[string]interface{}{})
+	if err != nil {
+		return c.String(http.StatusInternalServerError, err.Error())
+	}
+	var users []GetAllUsersUser
+	err = result.All(c.Request().Context(), &users)
+	if err != nil {
+		return c.String(http.StatusInternalServerError, err.Error())
+	}
+
+	var response GetAllUsersResponse
+	for _, user := range users {
+		response.Users = append(response.Users, GetAllUsersUser{
+			ID:      user.ID,
+			Name:    user.Name,
+			Surname: user.Surname,
+		})
+	}
+
+	return c.JSON(http.StatusOK, response)
 }

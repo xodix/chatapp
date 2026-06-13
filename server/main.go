@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"os"
 	"study4cash/routes"
+	"study4cash/websockets"
 
 	"github.com/go-playground/validator/v10"
 	"github.com/joho/godotenv"
@@ -31,6 +32,7 @@ func main() {
 	e := echo.New()
 	e.Validator = &CustomValidator{validator: validator.New()}
 	e.Use(middleware.RequestLogger())
+	e.Use(middleware.Recover())
 	e.Use(middleware.CORSWithConfig(middleware.CORSConfig{
 		AllowOrigins: []string{"*"},
 		AllowMethods: []string{http.MethodGet, http.MethodPut, http.MethodPost, http.MethodDelete, http.MethodOptions},
@@ -39,10 +41,7 @@ func main() {
 	// ROUTES
 	routes.RouteUsers("/user", e, db)
 	routes.RouteChats("/chats", e, db)
-
-	e.GET("/", func(c *echo.Context) error {
-		return c.String(http.StatusOK, "Hello, World!")
-	})
+	e.GET("/ws", websockets.WebsocketsHandler)
 
 	log.Println("Server is running on http://localhost:8080")
 	if err := e.Start(":8080"); err != nil {

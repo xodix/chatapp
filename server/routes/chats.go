@@ -17,10 +17,9 @@ func RouteChats(prefix string, e *echo.Echo, db *mongo.Database) {
 	// Entire group is protected
 	chatsRouter := e.Group(prefix)
 	chatsRouter.Use(auth.JWTMiddleware)
-
 	chatsRouter.GET("/", getUsersChats)
-	// chatsRouter.DELETE("/", DeleteAccount)
-	// chatsRouter.PUT("/setName", UpdateAccount)
+	chatsRouter.POST("/", createChat)
+	chatsRouter.GET("/messages", getMessages)
 }
 
 type GetUsersChatsResponse struct {
@@ -43,5 +42,60 @@ func getUsersChats(c *echo.Context) error {
 		return c.String(http.StatusInternalServerError, err.Error())
 	}
 
+	if len(chats) == 0 {
+		return c.JSON(http.StatusOK, GetUsersChatsResponse{Chats: []models.Chat{}})
+	}
+
 	return c.JSON(http.StatusOK, GetUsersChatsResponse{Chats: chats})
+}
+
+type CreateChatRequest struct {
+	Name    string   `json:"name" validate:"required,min=3,max=60"`
+	Members []string `json:"members" validate:"required,min=1"`
+}
+
+func createChat(c *echo.Context) error {
+	var request CreateChatRequest
+	err := c.Bind(&request)
+	if err != nil {
+		c.String(http.StatusBadRequest, err.Error())
+	}
+
+	ids := []bson.ObjectID{}
+	for _, id := range request.Members {
+		idObj, err := bson.ObjectIDFromHex(id)
+		if err != nil {
+			c.String(http.StatusBadRequest, err.Error())
+		}
+		ids = append(ids, idObj)
+	}
+
+	chatsCollection.InsertOne(c.Request().Context(), models.Chat{
+		Name:     request.Name,
+		Messages: []models.ChatMessage{},
+		Members:  ids,
+	})
+
+	return c.String(http.StatusOK, "Chat created")
+}
+
+func getMessages(c *echo.Context) error {
+	id := c.Get("userID").(string)
+	userID, err := bson.ObjectIDFromHex(id)
+	if err != nil {
+		return c.String(http.StatusBadRequest, err.Error())
+	}
+	chatID := c.QueryParam("id")
+	objID, err := bson.ObjectIDFromHex(chatID)
+	if err != nil {
+		return c.String(http.StatusBadRequest, err.Error())
+	}
+	result := chatsCollection.FindOne(c.Request().Context(), map[string]interface{}{"_id": objID, "members": userID})
+	if result.Err() != nil {
+		return c.String(http.StatusBadRequest, result.Err().Error())
+	}
+	var chat models.Chat
+	err = result.Decode(&chat)
+
+	return c.JSON(200, chat.Messages)
 }

@@ -13,5 +13,6 @@ type ChatMessage struct {
 type Chat struct {
 	ID       bson.ObjectID   `json:"id" bson:"_id,omitempty"`
 	Messages []ChatMessage   `json:"messages" bson:"messages"`
+	Name     string          `json:"name" bson:"name"`
 	Members  []bson.ObjectID `json:"members" bson:"members"`
 }
