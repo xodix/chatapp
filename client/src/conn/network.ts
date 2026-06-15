@@ -71,7 +71,12 @@ export class Request {
     const response = await fetch(
       "http://localhost:8080/user/register",
       requestOptions as RequestInit,
-    ).catch((error) => console.error(error));
+    ).catch((error) => {
+      if (error.status === 401) {
+        localStorage.removeItem("token");
+      }
+      console.error(error);
+    });
     if (!response) {
       throw "Could not get the response";
     }
@@ -94,7 +99,12 @@ export class Request {
     const response = await fetch(
       "http://localhost:8080/user/login",
       requestOptions as RequestInit,
-    ).catch((error) => console.error(error));
+    ).catch((error) => {
+      if (error.status === 401) {
+        localStorage.removeItem("token");
+      }
+      console.error(error);
+    });
     if (!response) {
       throw "Could not get the response";
     }
@@ -121,7 +131,12 @@ export class Request {
     const response = await fetch(
       "http://localhost:8080/user/",
       requestOptions as RequestInit,
-    ).catch((error) => console.error(error));
+    ).catch((error) => {
+      if (error.status === 401) {
+        localStorage.removeItem("token");
+      }
+      console.error(error);
+    });
     if (!response) {
       throw "Could not get the response";
     }
@@ -176,7 +191,12 @@ export class Request {
     const response = await fetch(
       "http://localhost:8080/chats/",
       requestOptions as RequestInit,
-    ).catch((error) => console.error(error));
+    ).catch((error) => {
+      if (error.status === 401) {
+        localStorage.removeItem("token");
+      }
+      console.error(error);
+    });
     if (!response) {
       throw "Could not get the response";
     }
@@ -203,7 +223,12 @@ export class Request {
     const response = await fetch(
       "http://localhost:8080/user/all",
       requestOptions as RequestInit,
-    ).catch((error) => console.error(error));
+    ).catch((error) => {
+      if (error.status === 401) {
+        localStorage.removeItem("token");
+      }
+      console.error(error);
+    });
     if (!response) {
       throw "Could not get the response";
     }
@@ -251,9 +276,10 @@ export type UpdateRequest = {
 };
 
 export type ChatMessage = {
-  id: string;
   author: string;
   message: string;
+  name: string;
+  surname: string;
 };
 
 export type Chat = {
@@ -286,6 +312,4 @@ export type GetMessagesRequest = {
   chat_id: string;
 };
 
-export type GetMessagesResponse = {
-  messages: ChatMessage[];
-};
+export type GetMessagesResponse = ChatMessage[];

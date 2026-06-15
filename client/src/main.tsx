@@ -1,4 +1,3 @@
-import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import './index.css'
 import { BrowserRouter, Route, Routes } from 'react-router'
@@ -10,17 +9,15 @@ import ProtectedRoute from './conn/protectedRoute.tsx'
 import CreateChat from './pages/CreateChat.tsx'
 
 createRoot(document.getElementById('root')!).render(
-  <StrictMode>
-    <BrowserRouter>
-      <Routes>
-        <Route path="/login" element={<Login />} />
-        <Route path="/register" element={<Register />} />
-        <Route element={<ProtectedRoute />}>
-          <Route path="/createChat" element={<CreateChat />} />
-          <Route path="/chat" element={<Chat />} />
-          <Route path="/" element={<Chats />} />
-        </Route>
-      </Routes>
-    </BrowserRouter>
-  </StrictMode>
+  <BrowserRouter>
+    <Routes>
+      <Route path="/login" element={<Login />} />
+      <Route path="/register" element={<Register />} />
+      <Route element={<ProtectedRoute />}>
+        <Route path="/createChat" element={<CreateChat />} />
+        <Route path="/chat" element={<Chat />} />
+        <Route path="/" element={<Chats />} />
+      </Route>
+    </Routes>
+  </BrowserRouter>
 )

@@ -4,7 +4,6 @@ package main
 
 import (
 	"log"
-	"net/http"
 	"os"
 	"study4cash/routes"
 	"study4cash/websockets"
@@ -35,13 +34,14 @@ func main() {
 	e.Use(middleware.Recover())
 	e.Use(middleware.CORSWithConfig(middleware.CORSConfig{
 		AllowOrigins: []string{"*"},
-		AllowMethods: []string{http.MethodGet, http.MethodPut, http.MethodPost, http.MethodDelete, http.MethodOptions},
+		AllowMethods: []string{"*"},
+		AllowHeaders: []string{"*"},
 	}))
 
 	// ROUTES
 	routes.RouteUsers("/user", e, db)
 	routes.RouteChats("/chats", e, db)
-	e.GET("/ws", websockets.WebsocketsHandler)
+	e.GET("/ws", func(c *echo.Context) error { return websockets.WebsocketsHandler(c, db) })
 
 	log.Println("Server is running on http://localhost:8080")
 	if err := e.Start(":8080"); err != nil {

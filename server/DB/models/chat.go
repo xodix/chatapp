@@ -5,9 +5,10 @@ import (
 )
 
 type ChatMessage struct {
-	ID      bson.ObjectID `json:"id" bson:"_id,omitempty"`
 	Author  bson.ObjectID `json:"author" bson:"author"`
 	Message string        `json:"message" bson:"message"`
+	Name    string        `json:"name" bson:"name"`
+	Surname string        `json:"surname" bson:"surname"`
 }
 
 type Chat struct {
