@@ -1,6 +1,8 @@
 # Build stage
 FROM node:22-alpine AS builder
 
+ENV CI=true
+
 WORKDIR /app
 
 # Enable pnpm

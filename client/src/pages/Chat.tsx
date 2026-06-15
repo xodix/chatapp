@@ -5,14 +5,14 @@ import Nav from "../components/Nav";
 function ChatBubble({ text, fromUser, userName, userSurname }: { text: string; fromUser: string, userName: string, userSurname: string }) {
 	const userID = localStorage.getItem("userID")!;
 	return fromUser === userID ? (
-		<div className="flex justify-between">
+		<div className="flex justify-between m-1">
 			<div></div>
 			<div className="bg-blue-950 w-1/3 text-right rounded-2xl text-white p-3">
 				<p className="text-xl">{text}</p>
 			</div>
 		</div>
 	) : (
-		<div className="flex justify-between">
+		<div className="flex justify-between m-1">
 			<div className="bg-red-950 w-1/3 text-left rounded-2xl text-white p-3">
 				<p className="text-xl">{text}</p>
 				<p>{userName} {userSurname}</p>
@@ -41,6 +41,9 @@ function Chat() {
 			.then(res => {
 				setMessages(res ?? []);
 				setLoading(false);
+				setTimeout(() => {
+					window.scrollTo(0, document.body.scrollHeight);
+				}, 100);
 			})
 			.catch(err => console.error(err));
 
@@ -51,6 +54,9 @@ function Chat() {
 		ws.onmessage = (event) => {
 			console.log(event)
 			setMessages(prev => [...prev, JSON.parse(event.data)]);
+			setTimeout(() => {
+				window.scrollTo(0, document.body.scrollHeight);
+			}, 100);
 		};
 		ws.onclose = (event) => console.log("disconnected", event.code);
 		ws.onerror = (error) => console.error("error:", error);
