@@ -18,23 +18,23 @@ services:
       start_period: 2s
       interval: 5s
 
-  # app:
-  #   build:
-  #     context: ./server/
-  #     dockerfile: Dockerfile
-  #   container_name: server_chatapp
-  #   restart: unless-stopped
-  #   ports:
-  #     - "8080:8080"
-  #   environment:
-  #     MONGODB_URI: mongodb://${DB_USER}:${DB_PASSWORD}@mongodb:27017/${DB_NAME}?authSource=admin
-  #     TOKEN_SECRET: ${TOKEN_SECRET}
-  #     PRODUCTION: true
-  #   networks:
-  #     - server_network
-  #   depends_on:
-  #     mongodb:
-  #       condition: service_healthy
+  app:
+    build:
+      context: ./server/
+      dockerfile: Dockerfile
+    container_name: server_chatapp
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    environment:
+      MONGODB_URI: mongodb://${DB_USER}:${DB_PASSWORD}@mongodb:27017/${DB_NAME}?authSource=admin
+      TOKEN_SECRET: ${TOKEN_SECRET}
+      PRODUCTION: true
+    networks:
+      - server_network
+    depends_on:
+      mongodb:
+        condition: service_healthy
 
   openAPIDocs:
     image: swaggerapi/swagger-ui
@@ -45,14 +45,14 @@ services:
     volumes:
       - ./server/docs/openAPI.yml:/foo/openapi.yaml:ro
 
-  # client:
-  #   build:
-  #     context: ./client/
-  #     dockerfile: Dockerfile
-  #   container_name: client_chatapp
-  #   restart: unless-stopped
-  #   ports:
-  #     - "3000:80"
+  client:
+    build:
+      context: ./client/
+      dockerfile: Dockerfile
+    container_name: client_chatapp
+    restart: unless-stopped
+    ports:
+      - "3000:80"
 
 volumes:
   mongo_data:
