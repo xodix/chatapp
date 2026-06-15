@@ -53,43 +53,45 @@ function Register() {
 	}
 
 	return (
-		<div className="min-h-screen w-auto flex justify-center items-center">
-			<div className="block w-fit">
-				<h1 className="text-2xl">Register</h1>
-				{error ? <p className="text-red-500 font-bold">{error}</p> : <p></p>}
-				<form onSubmit={handleSubmit}>
-					<label>
-						name:
-						<input type="text" className="form-input" name='name' placeholder='Name' value={name} onChange={(e) => setName(e.target.value)} />
-					</label>
-					<label>
-						surname:
-						<input type="text" className="form-input" name='surname' placeholder='Surname' value={surname} onChange={(e) => setSurname(e.target.value)} />
-					</label>
-					<label>
-						email:
-						<input type="email" className="form-input" name="email" placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} />
-					</label>
-					<label>
-						password:
-						<input type="password" className="form-input" name="password" placeholder="Password" value={password} onChange={(e) => setPassword(e.target.value)} />
-					</label>
-					<label>
-						Birthdate:
-						<input
-							type="date"
-							max={formatDate(minimumDate)}
-							className="form-input w-full"
-							name="birthdate"
-							placeholder="Birthdate"
-							value={formatDate(birthdate)}
-							onChange={(e) => setBirthdate(new Date(e.target.value))} />
-					</label>
-					<input type="submit" className="form-input w-full" value="Register" />
-				</form>
-				<p>Or <NavLink to="/login" className="text-blue-500 hover:underline">log in</NavLink></p>
+		<>
+			<div className="min-h-screen w-auto flex justify-center items-center">
+				<div className="block w-fit">
+					<h1 className="text-2xl">Register</h1>
+					{error ? <p className="text-red-500 font-bold">{error}</p> : <p></p>}
+					<form onSubmit={handleSubmit}>
+						<label>
+							name:
+							<input type="text" className="form-input" name='name' placeholder='Name' value={name} onChange={(e) => setName(e.target.value)} />
+						</label>
+						<label>
+							surname:
+							<input type="text" className="form-input" name='surname' placeholder='Surname' value={surname} onChange={(e) => setSurname(e.target.value)} />
+						</label>
+						<label>
+							email:
+							<input type="email" className="form-input" name="email" placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} />
+						</label>
+						<label>
+							password:
+							<input type="password" className="form-input" name="password" placeholder="Password" value={password} onChange={(e) => setPassword(e.target.value)} />
+						</label>
+						<label>
+							Birthdate:
+							<input
+								type="date"
+								max={formatDate(minimumDate)}
+								className="form-input w-full"
+								name="birthdate"
+								placeholder="Birthdate"
+								value={formatDate(birthdate)}
+								onChange={(e) => setBirthdate(new Date(e.target.value))} />
+						</label>
+						<input type="submit" className="form-input w-full" value="Register" />
+					</form>
+					<p>Or <NavLink to="/login" className="text-blue-500 hover:underline">log in</NavLink></p>
+				</div>
 			</div>
-		</div>
+		</>
 	)
 }
 

@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { Request, type User } from "../conn/network";
+import Nav from "../components/Nav";
 
 
 function CreateChat() {
@@ -34,6 +35,7 @@ function CreateChat() {
 
 	return (
 		<>
+			<Nav />
 			<div className="min-h-screen w-auto flex justify-center items-center">
 				<div className="block w-fit">
 					<h1 className="text-2xl">Create a chat:</h1>

@@ -1,18 +1,19 @@
 import { useEffect, useRef, useState } from "react";
 import { Request, type ChatMessage } from "../conn/network";
+import Nav from "../components/Nav";
 
 function ChatBubble({ text, fromUser, userName, userSurname }: { text: string; fromUser: string, userName: string, userSurname: string }) {
 	const userID = localStorage.getItem("userID")!;
 	return fromUser === userID ? (
 		<div className="flex justify-between">
 			<div></div>
-			<div className="bg-blue-950 w-50 rounded-2xl text-white p-3">
+			<div className="bg-blue-950 w-1/3 text-right rounded-2xl text-white p-3">
 				<p className="text-xl">{text}</p>
 			</div>
 		</div>
 	) : (
 		<div className="flex justify-between">
-			<div className="bg-red-950 w-50 rounded-2xl text-white p-3">
+			<div className="bg-red-950 w-1/3 text-left rounded-2xl text-white p-3">
 				<p className="text-xl">{text}</p>
 				<p>{userName} {userSurname}</p>
 			</div>
@@ -28,7 +29,7 @@ function Chat() {
 	const wsRef = useRef<WebSocket | null>(null);
 
 	useEffect(() => {
-		const userID = localStorage.getItem("userID")!;
+		const token = localStorage.getItem("token")!;
 		const params = new URLSearchParams(window.location.search);
 		const id = params.get("id");
 		if (!id) {
@@ -43,7 +44,7 @@ function Chat() {
 			})
 			.catch(err => console.error(err));
 
-		const ws = new WebSocket(`ws://localhost:8080/ws?chat_id=${id}&user_id=${userID}`);
+		const ws = new WebSocket(`ws://localhost:8080/ws?chat_id=${id}&token=${token}`);
 		wsRef.current = ws;
 
 		ws.onopen = () => console.log("connected");
@@ -72,20 +73,23 @@ function Chat() {
 	if (loading) return <p>Loading...</p>;
 
 	return (
-		<div className="min-h-screen">
-			{messages.map((msg, index) => (
-				<ChatBubble key={index} text={msg.message} fromUser={msg.author} userName={msg.name} userSurname={msg.surname} />
-			))}
-			<div className="h-10"></div>
-			<form className="fixed bottom-0 w-full flex" onSubmit={handleSend}>
-				<input
-					className="h-10 form-input w-5/6"
-					value={currMessage}
-					onChange={(e) => setCurrMessage(e.target.value)}
-				/>
-				<button className="h-10 w-1/6 form-input" type="submit">Send</button>
-			</form>
-		</div>
+		<>
+			<Nav />
+			<div className="min-h-screen">
+				{messages.map((msg, index) => (
+					<ChatBubble key={index} text={msg.message} fromUser={msg.author} userName={msg.name} userSurname={msg.surname} />
+				))}
+				<div className="h-10"></div>
+				<form className="fixed bottom-0 w-full flex" onSubmit={handleSend}>
+					<input
+						className="h-10 form-input w-5/6"
+						value={currMessage}
+						onChange={(e) => setCurrMessage(e.target.value)}
+					/>
+					<button className="h-10 w-1/6 form-input" type="submit">Send</button>
+				</form>
+			</div>
+		</>
 	);
 }
 

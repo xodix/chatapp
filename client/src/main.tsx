@@ -7,6 +7,7 @@ import Chats from './pages/Chats.tsx'
 import Chat from './pages/Chat.tsx'
 import ProtectedRoute from './conn/protectedRoute.tsx'
 import CreateChat from './pages/CreateChat.tsx'
+import NotFound from './pages/404.tsx'
 
 createRoot(document.getElementById('root')!).render(
   <BrowserRouter>
@@ -18,6 +19,7 @@ createRoot(document.getElementById('root')!).render(
         <Route path="/chat" element={<Chat />} />
         <Route path="/" element={<Chats />} />
       </Route>
+      <Route path="*" element={<NotFound />} />
     </Routes>
   </BrowserRouter>
 )

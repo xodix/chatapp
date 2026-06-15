@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router";
 import { Request, type Chat } from "../conn/network";
+import Nav from "../components/Nav";
 
 function ChatDisplay({ chat }: { chat: Chat }) {
 	return (
@@ -25,10 +26,11 @@ function Chats() {
 
 	return (loading) ? (<p>Loading...</p>) : (
 		<>
+			<Nav />
 			<div className="min-h-screen flex justify-center items-center flex-col">
-				{chats.map(chat => <ChatDisplay chat={chat} key={chat.id} />)}
+				{(chats.length == 0) ? <h1 className="text-2xl">No chats yet. Add them by clicking + in the bottom right corner.</h1> : chats.map(chat => <ChatDisplay chat={chat} key={chat.id} />)}
 			</div>
-			<Link to="/createChat" className="absolute p-10 m-0 text-4xl bottom-1 right-1 bg-red-950 text-white rounded-full">
+			<Link to="/createChat" className="absolute w-20 h-20 p-0 m-0 flex items-center justify-center text-4xl bottom-1 right-1 bg-red-950 text-white rounded-full">
 				+
 			</Link>
 		</>
